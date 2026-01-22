@@ -29,4 +29,4 @@ Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk m
 - [ ] **Hari 14:** Final Bug Fix & Dokumentasi README
 
 ---
-*Project Started: [Isi Tanggal Hari Ini]*
+*Project Started: 23-Januari-2026*
