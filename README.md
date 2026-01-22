@@ -11,7 +11,7 @@ Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk m
 ## 📅 Roadmap Pengerjaan (14 Hari)
 
 ### Minggu 1: Backend & Database Focus
-- [ ] **Hari 1:** Setup Environment & Desain Database Schema
+- [X] **Hari 1:** Setup Environment & Desain Database Schema
 - [ ] **Hari 2:** Setup Server Backend (Node/Express)
 - [ ] **Hari 3:** Koneksi Database & Test Connection
 - [ ] **Hari 4:** Membuat API Create & Read (POST/GET)
