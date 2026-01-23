@@ -12,8 +12,8 @@ Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk m
 
 ### Minggu 1: Backend & Database Focus
 - [X] **Hari 1:** Setup Environment & Desain Database Schema
-- [ ] **Hari 2:** Setup Server Backend (Node/Express)
-- [ ] **Hari 3:** Koneksi Database & Test Connection
+- [X] **Hari 2:** Setup Server Backend (Node/Express)
+- [X] **Hari 3:** Koneksi Database & Test Connection
 - [ ] **Hari 4:** Membuat API Create & Read (POST/GET)
 - [ ] **Hari 5:** Membuat API Update & Delete (PUT/DELETE)
 - [ ] **Hari 6:** Validasi Input & Error Handling
