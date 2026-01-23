@@ -17,7 +17,7 @@ Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk m
 - [X] **Hari 4:** Membuat API Create & Read (POST/GET)
 - [ ] **Hari 5:** Membuat API Update & Delete (PUT/DELETE)
 - [ ] **Hari 6:** Validasi Input & Error Handling
-- [ ] **Hari 7:** Refactoring Code & API Testing (Postman)
+- [X] **Hari 7:** Refactoring Code & API Testing (Postman)
 
 ### Minggu 2: Frontend & Integration
 - [ ] **Hari 8:** Setup Project Frontend & Struktur Folder
