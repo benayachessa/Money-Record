@@ -15,13 +15,13 @@ Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk m
 - [X] **Hari 2:** Setup Server Backend (Node/Express)
 - [X] **Hari 3:** Koneksi Database & Test Connection
 - [X] **Hari 4:** Membuat API Create & Read (POST/GET)
-- [ ] **Hari 5:** Membuat API Update & Delete (PUT/DELETE)
-- [ ] **Hari 6:** Validasi Input & Error Handling
+- [X] **Hari 5:** Membuat API Update & Delete (PUT/DELETE)
+- [X] **Hari 6:** Validasi Input & Error Handling
 - [X] **Hari 7:** Refactoring Code & API Testing (Postman)
 
 ### Minggu 2: Frontend & Integration
-- [ ] **Hari 8:** Setup Project Frontend & Struktur Folder
-- [ ] **Hari 9:** Integrasi API (Fetch Data ke Layar)
+- [X] **Hari 8:** Setup Project Frontend & Struktur Folder
+- [X] **Hari 9:** Integrasi API (Fetch Data ke Layar)
 - [ ] **Hari 10:** Fitur Form Input & Delete Button
 - [ ] **Hari 11:** Styling UI (CSS/Tailwind/Bootstrap)
 - [ ] **Hari 12:** Menambahkan Grafik/Chart Pengeluaran
