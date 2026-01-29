@@ -22,7 +22,7 @@ Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk m
 ### Minggu 2: Frontend & Integration
 - [X] **Hari 8:** Setup Project Frontend & Struktur Folder
 - [X] **Hari 9:** Integrasi API (Fetch Data ke Layar)
-- [ ] **Hari 10:** Fitur Form Input & Delete Button
+- [X] **Hari 10:** Fitur Form Input & Delete Button
 - [ ] **Hari 11:** Styling UI (CSS/Tailwind/Bootstrap)
 - [ ] **Hari 12:** Menambahkan Grafik/Chart Pengeluaran
 - [ ] **Hari 13:** Deployment (Frontend + Backend)
