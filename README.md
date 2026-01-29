@@ -3,9 +3,9 @@
 Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk mempertajam skill Full-stack Development (Frontend + Backend + Database).
 
 ## 🚀 Tech Stack (Rencana)
-- **Frontend:** React.js / Vue.js (Pilih nanti)
+- **Frontend:** Vue.js
 - **Backend:** Node.js (Express)
-- **Database:** MySQL / MongoDB
+- **Database:** MySQL
 - **Deployment:** Vercel & Supabase/Atlas
 
 ## 📅 Roadmap Pengerjaan (14 Hari)
@@ -23,10 +23,35 @@ Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk m
 - [X] **Hari 8:** Setup Project Frontend & Struktur Folder
 - [X] **Hari 9:** Integrasi API (Fetch Data ke Layar)
 - [X] **Hari 10:** Fitur Form Input & Delete Button
-- [ ] **Hari 11:** Styling UI (CSS/Tailwind/Bootstrap)
+- [X] **Hari 11:** Styling UI (CSS/Tailwind/Bootstrap)
 - [ ] **Hari 12:** Menambahkan Grafik/Chart Pengeluaran
 - [ ] **Hari 13:** Deployment (Frontend + Backend)
 - [ ] **Hari 14:** Final Bug Fix & Dokumentasi README
+
+---
+
+## 🚀 Future Roadmap (Phase 2)
+Rencana pengembangan jangka panjang untuk meningkatkan aplikasi menjadi standar industri (*Industrial Grade Application*).
+
+### 1. Core Functionality (Penyempurnaan Logika)
+- [ ] **Fitur Edit (Update):** Melengkapi sistem CRUD agar user bisa memperbaiki data yang salah input.
+- [ ] **Filter & Pencarian:** Fitur untuk memfilter laporan per Bulan/Tahun dan mencari transaksi tertentu.
+- [ ] **Budgeting Alert:** Mengatur batas anggaran bulanan (misal: Max Rp 1 Juta) dan peringatan jika hampir *over-budget*.
+- [ ] **Format Tanggal Lokal:** Mengubah tampilan tanggal menjadi format Indonesia (contoh: "Senin, 29 Januari 2026").
+
+### 2. Database Expansion (Detail Data)
+- [ ] **Kolom Tambahan:** Menambahkan `notes` (Catatan tempat, misal: Indomaret) dan `payment_method` (QRIS/Cash/Transfer).
+- [ ] **Kategori Dinamis:** Memungkinkan user membuat dan menghapus kategori pengeluaran sendiri.
+
+### 3. UI/UX Architecture (Tampilan & Navigasi)
+- [ ] **React Router & Navbar:** Memisahkan aplikasi menjadi multi-halaman (Dashboard, Transaksi, Add Form) dengan menu navigasi yang rapi.
+- [ ] **Interactive UI:** Menambahkan animasi transisi halus dan feedback visual saat interaksi.
+- [ ] **Dark Mode:** Opsi tombol untuk mengubah tampilan menjadi mode gelap (*Dark Theme*).
+
+### 4. Advanced Technology (Fitur Unggulan)
+- [ ] **Authentication (Login/Register):** Sistem keamanan user, sehingga setiap orang punya data pengeluaran pribadi masing-masing.
+- [ ] **AI Financial Advisor:** Integrasi dengan **Gemini API** untuk menganalisis kebiasaan belanja user dan memberikan saran penghematan cerdas.
+- [ ] **Export Reports:** Fitur download laporan keuangan dalam format **PDF** atau **Excel**.
 
 ---
 *Project Started: 23-Januari-2026*
