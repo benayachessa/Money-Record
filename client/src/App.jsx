@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ExpenseChart from "./components/ExpenseChart";
 
 function App() {
   const [expenses, setExpenses] = useState([]);
@@ -84,6 +85,9 @@ function App() {
         <h3>Total Pengeluaran</h3>
         <h1>Rp {totalExpense.toLocaleString("id-ID")}</h1>
       </div>
+
+      {/* Chart Pengeluaran */}
+      <ExpenseChart expenses={expenses} />
 
       {/* Form Input */}
       <div className="form-card">
