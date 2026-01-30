@@ -7,6 +7,8 @@ const expenseController = require("../controllers/expenseController");
 router.get("/", expenseController.getAllExpences);
 // POST: Tambah Data
 router.post("/", expenseController.createExpense);
+// PUT: Update Data
+router.put('/:id', expenseController.updateExpense);
 // DELETE: Hapus Data
 router.delete("/:id", expenseController.deleteExpense);
 

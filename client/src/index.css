@@ -162,10 +162,11 @@ select:focus {
 .btn-delete {
   background: none;
   border: none;
-  color: var(--text-light);
-  font-size: 0.8rem;
   cursor: pointer;
   padding: 0;
+  color: red;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .btn-delete:hover {

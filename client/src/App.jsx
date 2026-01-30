@@ -4,6 +4,8 @@ import ExpenseChart from "./components/ExpenseChart";
 function App() {
   const [expenses, setExpenses] = useState([]);
 
+  const [editId, setEditId] = useState(null);
+
   const [formData, setFormData] = useState({
     title: "",
     amount: "",
@@ -37,19 +39,62 @@ function App() {
     });
   };
 
+  const handleEditClick = (item) => {
+    setEditId(item.id); //aktifkan mode edit
+    setFormData({
+      //isi formulir dengan data lama
+      title: item.title,
+      amount: item.amount,
+      category: item.category,
+      date: item.date.split("T")[0], //format tanggal agar pas di input date
+    });
+    //scroll atas agar perubahan terlihat
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditId(null); //nonaktif tombol edit
+    setFormData({ title: "", amount: "", category: "", date: "" }); //bersihkan form
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const response = await fetch("http://localhost:5000/expenses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const result = await response.json();
-      if (result.success) {
-        fetchExpenses();
-        setFormData({ title: "", amount: "", category: "", date: "" });
+      if (editId) {
+        // Mode Edit(PUT)
+        const response = await fetch(
+          `http://localhost:5000/expenses/${editId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          },
+        );
+        const result = await response.json();
+
+        // Cek Console
+        console.log("Hasil Update:", result);
+
+        if (result.success) {
+          alert("Data berhasil diupdate!");
+          setEditId(null); //nonaktifkan mode edit
+        }
+      } else {
+        const response = await fetch("http://localhost:5000/expenses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert("Data berhasil disimpan!");
+        }
       }
+
+      // Refresh data dan bersihkan form
+      fetchExpenses();
+      setFormData({ title: "", amount: "", category: "", date: "" });
     } catch (error) {
       console.error("Gagal simpan:", error);
     }
@@ -91,6 +136,11 @@ function App() {
 
       {/* Form Input */}
       <div className="form-card">
+        {/* Judul Form Dinamis */}
+        <h3 style={{ marginBottom: "15px", color: "#555" }}>
+          {editId ? "Edit Transaksi" : "Tambah Transaksi Baru"}
+        </h3>
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <input
@@ -120,6 +170,7 @@ function App() {
             >
               <option value="">Kategori</option>
               <option value="Makan">Makan</option>
+              <option value="Minuman">Minuman</option>
               <option value="Transport">Transport</option>
               <option value="Belanja">Belanja</option>
               <option value="Lainnya">Lainnya</option>
@@ -136,9 +187,33 @@ function App() {
             />
           </div>
 
-          <button type="submit" className="btn-save">
-            Simpan Transaksi
-          </button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button
+              type="submit"
+              className="btn-save"
+              style={{ flex: 1, background: editId ? "#fca311" : "#4361ee" }}
+            >
+              {editId ? "Update Transaksi" : "Simpan Transaksi"}
+            </button>
+
+            {/* Tombol Batal muncul waktu edit */}
+            {editId && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                style={{
+                  padding: "12px",
+                  background: "#e9ecef",
+                  border: "none",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  color: "#333",
+                }}
+              >
+                Batal
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -161,12 +236,30 @@ function App() {
                 <span className="t-price">
                   - Rp {Number(item.amount).toLocaleString("id-ID")}
                 </span>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="btn-delete"
-                >
-                  Hapus
-                </button>
+
+                <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
+                  {/* Tombol Edit */}
+                  <button
+                    onClick={() => handleEditClick(item)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#fca311",
+                      cursor: "pointer",
+                      fontSize: "0.9rem",
+                      fontweight: "500",
+                    }}
+                  >
+                    Edit
+                  </button>
+                  {/* Tombol Hapus */}
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="btn-delete"
+                  >
+                    Hapus
+                  </button>
+                </div>
               </div>
             </div>
           ))
