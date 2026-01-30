@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import ExpenseChart from "./components/ExpenseChart";
 
 function App() {
+  //Panggil alamat API dari file .env
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const [expenses, setExpenses] = useState([]);
 
   const [editId, setEditId] = useState(null);
@@ -24,7 +27,7 @@ function App() {
 
   const fetchExpenses = async () => {
     try {
-      const response = await fetch("http://localhost:5000/expenses");
+      const response = await fetch(`${API_URL}/expenses`);
       const data = await response.json();
       setExpenses(data.data);
     } catch (error) {
@@ -64,7 +67,7 @@ function App() {
       if (editId) {
         // Mode Edit(PUT)
         const response = await fetch(
-          `http://localhost:5000/expenses/${editId}`,
+          `${API_URL}/expenses/${editId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -81,7 +84,7 @@ function App() {
           setEditId(null); //nonaktifkan mode edit
         }
       } else {
-        const response = await fetch("http://localhost:5000/expenses", {
+        const response = await fetch(`${API_URL}/expenses`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -105,7 +108,7 @@ function App() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/expenses/${id}`, {
+      const response = await fetch(`${API_URL}/expenses/${id}`, {
         method: "DELETE",
       });
       const result = await response.json();
