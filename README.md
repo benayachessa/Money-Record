@@ -34,7 +34,7 @@ Aplikasi full-stack untuk melacak pengeluaran pribadi. Projek ini dibuat untuk m
 Rencana pengembangan jangka panjang untuk meningkatkan aplikasi menjadi standar industri (*Industrial Grade Application*).
 
 ### 1. Core Functionality (Penyempurnaan Logika)
-- [ ] **Fitur Edit (Update):** Melengkapi sistem CRUD agar user bisa memperbaiki data yang salah input.
+- [X] **Fitur Edit (Update):** Melengkapi sistem CRUD agar user bisa memperbaiki data yang salah input.
 - [ ] **Filter & Pencarian:** Fitur untuk memfilter laporan per Bulan/Tahun dan mencari transaksi tertentu.
 - [ ] **Budgeting Alert:** Mengatur batas anggaran bulanan (misal: Max Rp 1 Juta) dan peringatan jika hampir *over-budget*.
 - [ ] **Format Tanggal Lokal:** Mengubah tampilan tanggal menjadi format Indonesia (contoh: "Senin, 29 Januari 2026").
