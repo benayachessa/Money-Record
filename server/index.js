@@ -21,7 +21,7 @@ app.listen(port, () => {
 
 module.exports = app;
 
-if (process/env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
   const port = process.env.PORT || 5000;
   app.listen(port, () => {
     console.log(`Server lari kencang di port ${port}`);
