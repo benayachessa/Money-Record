@@ -7,7 +7,6 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ExpenseChart = ({ expenses }) => {
   // 1. LOGIKA PENGELOMPOKAN DATA
-  //Mengubah data menjadi:  { category: totalAmount }
   const categoryTotals = expenses.reduce((acc, curr) => {
     const category = curr.category;
     const amount = Number(curr.amount);
@@ -20,21 +19,39 @@ const ExpenseChart = ({ expenses }) => {
     return acc;
   }, {});
 
+  // --- [BARU] KAMUS WARNA TETAP (KTP Warna) ---
+  // Pastikan nama Key-nya SAMA PERSIS dengan value di <option> select
+  const CATEGORY_COLORS = {
+    Makan: "#4361ee", // Biru
+    Minuman: "#4cc9f0", // Biru Muda
+    Transport: "#f72585", // Pink
+    Belanja: "#fca311", // Oranye
+    Lainnya: "#2b2d42", // Gelap
+  };
+
+  // Warna cadangan kalau ada kategori aneh yang gak terdaftar
+  const DEFAULT_COLOR = "#ef233c"; // Merah
+
+  // Ambil daftar nama kategori yang sedang tampil
+  const chartLabels = Object.keys(categoryTotals);
+
+  // Ambil data angka
+  const chartValues = Object.values(categoryTotals);
+
+  // --- [BARU] LOGIKA PEWARNAAN ---
+  // "Untuk setiap Label yang muncul, cari warnanya di Kamus. Kalau gak ada, kasih warna default."
+  const chartColors = chartLabels.map(
+    (category) => CATEGORY_COLORS[category] || DEFAULT_COLOR,
+  );
+
   // 2. MENYIAPKAN DATA UNTUK CHART.JS
   const data = {
-    labels: Object.keys(categoryTotals), //contoh: ['makan', 'transportasi']
+    labels: chartLabels,
     datasets: [
       {
         label: "Total Pengeluaran (Rp)",
-        data: Object.values(categoryTotals), //contoh: [50000, 20000]
-        backgroundColor: [
-          "#4361ee",
-          "#f72585",
-          "#4cc9f0",
-          "#fca311",
-          "#2b2d42",
-          "#ef233c",
-        ],
+        data: chartValues,
+        backgroundColor: chartColors, // <--- Pakai warna hasil pencarian tadi
         borderColor: "#ffffff",
         borderWidth: 2,
         hoverOffset: 10,
@@ -45,10 +62,10 @@ const ExpenseChart = ({ expenses }) => {
   const options = {
     plugins: {
       legend: {
-        position: "bottom", //Posisi Label di bawah
+        position: "bottom",
       },
     },
-    maintainAspectRatio: false, //Agar chart bisa menyesuaikan ukuran container
+    maintainAspectRatio: false,
   };
 
   return (
@@ -72,13 +89,12 @@ const ExpenseChart = ({ expenses }) => {
       >
         Statistik Pengeluaran
       </h3>
-      {/* Menampilkan Grafik Donat */}
       <div style={{ height: "220px", position: "relative" }}>
         {expenses.length > 0 ? (
           <Doughnut data={data} options={options} />
         ) : (
           <p style={{ textAlign: "center", paddingTop: "80px", color: "#ccc" }}>
-            Belum ada data
+            Data Kosong
           </p>
         )}
       </div>

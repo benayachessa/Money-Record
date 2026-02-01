@@ -16,10 +16,9 @@ function App() {
     date: "",
   });
 
-  // Hitung Total Otomatis
-  const totalExpense = expenses.reduce((acc, curr) => {
-    return acc + Number(curr.amount);
-  }, 0);
+  //Wadah Filter
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [filterDate, setFilterDate] = useState("");
 
   useEffect(() => {
     fetchExpenses();
@@ -66,14 +65,11 @@ function App() {
     try {
       if (editId) {
         // Mode Edit(PUT)
-        const response = await fetch(
-          `${API_URL}/expenses/${editId}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-          },
-        );
+        const response = await fetch(`${API_URL}/expenses/${editId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
         const result = await response.json();
 
         // Cek Console
@@ -120,7 +116,21 @@ function App() {
     }
   };
 
-  // --- TAMPILAN BARU (CLEAN UI) ---
+  // Saring data dan simpan di variabel
+  const filteredExpenses = expenses.filter((item) => {
+    const isCategoryMatch =
+      filterCategory === "All" || item.category === filterCategory;
+    const isDateMatch =
+      filterDate === "" || item.date.split("T")[0] === filterDate;
+    return isCategoryMatch && isDateMatch;
+  });
+
+  // Hitung Total dari data yang disaring
+  const totalExpense = filteredExpenses.reduce((acc, curr) => {
+    return acc + Number(curr.amount);
+  }, 0);
+
+  // --- TAMPILAN ---
   return (
     <div className="container">
       {/* Header */}
@@ -135,7 +145,7 @@ function App() {
       </div>
 
       {/* Chart Pengeluaran */}
-      <ExpenseChart expenses={expenses} />
+      <ExpenseChart expenses={filteredExpenses} />
 
       {/* Form Input */}
       <div className="form-card">
@@ -220,14 +230,47 @@ function App() {
         </form>
       </div>
 
+      {/*--- AREA FILTER ---*/}
+      <div
+        className="filter-section"
+        style={{ marginBottom: "20px", display: "flex", gap: "10px" }}
+      >
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          style={{
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #ddd",
+          }}
+        >
+          <option value="All">Semua Kategori</option>
+          <option value="Makan">Makan</option>
+          <option value="Minuman">Minuman</option>
+          <option value="Transport">Transport</option>
+          <option value="Belanja">Belanja</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+        <input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          style={{
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #ddd",
+          }}
+        />
+      </div>
+
       {/* Daftar Transaksi (Bukan Tabel Lagi, tapi List Card) */}
       <div className="transaction-list">
-        {expenses.length === 0 ? (
+        {filteredExpenses.length === 0 ? (
           <p style={{ textAlign: "center", color: "#888" }}>
             Belum ada data transaksi.
           </p>
         ) : (
-          expenses.map((item) => (
+          filteredExpenses.map((item) => (
             <div key={item.id} className="transaction-item">
               <div className="t-info">
                 <h4>{item.title}</h4>
