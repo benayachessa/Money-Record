@@ -1,0 +1,366 @@
+/* =========================================
+   GLOBAL STYLES
+   ========================================= */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  background-color: #f4f7fe; /* Latar belakang soft ala dashboard modern */
+  margin: 0;
+  padding: 0;
+  color: #2b3674;
+}
+
+/* =========================================
+   APP LAYOUT (DASHBOARD)
+   ========================================= */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f7fe;
+}
+
+/* Update pada main-content agar tidak terlalu melebar di monitor besar */
+.main-content {
+  flex: 1;
+  padding: 30px 40px;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center; /* Memastikan konten tetap di tengah */
+}
+
+/* Wadah utama di dalam main-content */
+.dashboard-container {
+  width: 100%;
+  max-width: 1200px; /* Batas maksimal lebar agar tetap nyaman dipandang */
+}
+
+/* Sistem Grid untuk Statistik */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+/* Grid untuk Konten Utama (Chart & Form) */
+.main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Kiri lebih lebar untuk grafik */
+  gap: 25px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .main-grid {
+    grid-template-columns: 1fr; /* Jadi satu kolom di layar sedang/kecil */
+  }
+}
+
+/* =========================================
+   SIDEBAR (DESKTOP)
+   ========================================= */
+.sidebar {
+  width: 250px;
+  background-color: white;
+  padding: 30px 20px;
+  box-shadow: 2px 0 20px rgba(17, 28, 67, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-brand h2 {
+  color: #111c43;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-item {
+  text-decoration: none;
+  color: #a3aed1;
+  padding: 15px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-item:hover {
+  background-color: #f4f7fe;
+  color: #4361ee;
+}
+
+.menu-item.active {
+  background-color: #4361ee;
+  color: white;
+  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+/* =========================================
+   KARTU (CARDS)
+   ========================================= */
+.total-card,
+.form-card,
+.filter-section {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0px 10px 30px rgba(17, 28, 67, 0.05);
+  margin-bottom: 25px;
+  transition: transform 0.3s ease;
+}
+
+.total-card {
+  text-align: center;
+  background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+  color: white;
+}
+
+.total-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.total-card h1 {
+  margin: 10px 0 0 0;
+  font-size: 2.5rem;
+}
+
+/* =========================================
+   FORM INPUT
+   ========================================= */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e0e5f2;
+  border-radius: 12px;
+  font-size: 1rem;
+  background-color: #f4f7fe;
+  color: #2b3674;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #4361ee;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+}
+
+/* =========================================
+   TOMBOL (BUTTONS)
+   ========================================= */
+button {
+  transition: all 0.2s ease;
+}
+
+.btn-save {
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+}
+
+.btn-save:active {
+  transform: translateY(0);
+}
+
+.btn-delete {
+  background: #ffe3e3;
+  color: #ef233c;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #ffc9c9;
+}
+
+/* Tombol Logout khusus Desktop */
+.logout-btn {
+  margin-top: auto; /* Ini sihir utamanya, Bos! */
+  background: #ffe3e3;
+  color: #ef233c;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #ef233c;
+  color: white;
+}
+
+/* Penyesuaian untuk Mobile (agar tidak aneh saat jadi Bottom Nav) */
+@media (max-width: 768px) {
+  .logout-btn {
+    margin-top: 0; /* Matikan dorongan bawah saat di HP */
+    width: auto;
+    background: transparent;
+    padding: 10px;
+  }
+
+  .logout-btn:hover {
+    background: transparent;
+    color: #ef233c;
+  }
+}
+
+/* =========================================
+   LIST TRANSAKSI
+   ========================================= */
+.transaction-item {
+  background: white;
+  padding: 18px 20px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  box-shadow: 0px 5px 20px rgba(17, 28, 67, 0.03);
+  border-left: 5px solid #4361ee;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.transaction-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0px 8px 25px rgba(17, 28, 67, 0.06);
+}
+
+.t-info h4 {
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+  color: #2b3674;
+}
+
+.t-category {
+  font-size: 0.85rem;
+  color: #a3aed1;
+}
+
+.t-amount-action {
+  text-align: right;
+}
+
+.t-price {
+  font-weight: 700;
+  color: #ef233c;
+  font-size: 1.1rem;
+}
+
+/* =========================================
+   RESPONSIVE MOBILE (Layar di bawah 768px)
+   ========================================= */
+@media (max-width: 768px) {
+  /* 1. Layout Berubah: Sidebar ke bawah */
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .main-content {
+    padding: 20px 15px;
+    margin-bottom: 70px; /* Jarak agar konten tidak tertutup menu bawah */
+  }
+
+  /* 2. Sidebar menjadi Bottom Navigation */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 10px 20px;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -5px 20px rgba(17, 28, 67, 0.1);
+    z-index: 1000;
+  }
+
+  .sidebar-brand {
+    display: none; /* Sembunyikan Logo di HP biar lega */
+  }
+
+  .sidebar-menu {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    gap: 0;
+  }
+
+  .menu-item {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    flex-direction: column; /* Ikon dan teks menumpuk */
+    gap: 5px;
+  }
+
+  /* 3. Form input dari menyamping jadi ke bawah */
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* 4. Tampilan Item Transaksi disesuaikan */
+  .transaction-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .t-amount-action {
+    text-align: left;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dashed #e0e5f2;
+    padding-top: 10px;
+  }
+}
