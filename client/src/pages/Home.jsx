@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import ExpenseChart from "../components/ExpenseChart";
 
@@ -13,13 +13,27 @@ const Home = () => {
     date: "",
   });
 
-  // State khusus untuk AI
-  const [aiTip, setAiTip] = useState("");
+  // --- STATE KHUSUS FLOATING AI CHAT ---
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [messages, setMessages] = useState([
+    {
+      sender: "ai",
+      text: "Halo Bos! Ada yang bisa dibantu soal keuangan hari ini?",
+    },
+  ]);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     fetchExpenses();
   }, []);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isChatOpen]);
 
   const fetchExpenses = async () => {
     try {
@@ -33,38 +47,47 @@ const Home = () => {
     }
   };
 
-  // --- FUNGSI MENGHUBUNGI AI (Sudah Bawa Token) ---
-  const fetchAiTip = async () => {
+  const sendMessageToAi = async (textMessage) => {
+    if (!textMessage.trim()) return;
+
+    const newMessages = [...messages, { sender: "user", text: textMessage }];
+    setMessages(newMessages);
+    setChatInput("");
     setIsLoadingAi(true);
-    setAiTip("Hmm.. sebentar, AI sedang menganalisis catatan keuanganmu...");
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/ai-tips`, {
+      const response = await fetch(`${API_URL}/ai-chat`, {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // PERBAIKAN: Tambah token ke AI
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ message: textMessage }),
       });
       const data = await response.json();
 
       if (data.success) {
-        setAiTip(data.tip);
+        setMessages([...newMessages, { sender: "ai", text: data.reply }]);
       } else {
-        setAiTip("Waduh, AI lagi ngambek. Coba lagi nanti ya.");
+        setMessages([...newMessages, { sender: "ai", text: data.reply }]);
       }
     } catch (error) {
-      console.error("Gagal konek AI:", error);
-      setAiTip(
-        "Koneksi ke otak AI terputus. Pastikan server nyala dan internet jalan.",
-      );
+      setMessages([
+        ...newMessages,
+        { sender: "ai", text: "Ups, koneksi ke otak AI terputus." },
+      ]);
     } finally {
       setIsLoadingAi(false);
     }
   };
 
-  // Logika Form & CRUD
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  const cancelEdit = () => {
+    setEditId(null);
+    setFormData({ title: "", amount: "", category: "", date: "" });
+  };
 
   const handleEditClick = (item) => {
     setEditId(item.id);
@@ -77,89 +100,54 @@ const Home = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // --- FUNGSI BATAL EDIT ---
-  const cancelEdit = () => {
-    setEditId(null);
-    setFormData({ title: "", amount: "", category: "", date: "" });
-  };
-
-  // --- FUNGSI SUBMIT (DUA MODE: POST & PUT) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-
     try {
-      if (editId) {
-        // MODE EDIT (PUT)
-        const response = await fetch(`${API_URL}/expenses/${editId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formData),
-        });
+      const method = editId ? "PUT" : "POST";
+      const url = editId
+        ? `${API_URL}/expenses/${editId}`
+        : `${API_URL}/expenses`;
 
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Berhasil diupdate!",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-          setEditId(null); // Keluar dari mode edit
-        }
-      } else {
-        // MODE TAMBAH BARU (POST)
-        const response = await fetch(`${API_URL}/expenses`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formData),
-        });
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Berhasil disimpan!",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-        }
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: editId ? "Berhasil diupdate!" : "Berhasil disimpan!",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        if (editId) setEditId(null);
+        fetchExpenses();
+        setFormData({ title: "", amount: "", category: "", date: "" });
       }
-
-      // Refresh data & bersihkan form
-      fetchExpenses();
-      setFormData({ title: "", amount: "", category: "", date: "" });
     } catch (error) {
       console.error("Gagal simpan:", error);
     }
   };
 
-  // --- FUNGSI HAPUS ---
   const handleDelete = async (id) => {
     const confirm = await Swal.fire({
       title: "Yakin mau hapus?",
-      text: "Data yang dihapus nggak bisa balik lagi lho!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef233c",
-      cancelButtonColor: "#8d99ae",
       confirmButtonText: "Ya, Hapus!",
     });
-
     if (confirm.isConfirmed) {
       try {
-        const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/expenses/${id}`, {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-
         if (response.ok) {
           Swal.fire("Terhapus!", "Datamu sudah lenyap.", "success");
           fetchExpenses();
@@ -170,7 +158,6 @@ const Home = () => {
     }
   };
 
-  // Kalkulasi Statistik
   const totalExpense = expenses.reduce(
     (acc, curr) => acc + Number(curr.amount),
     0,
@@ -182,116 +169,176 @@ const Home = () => {
       : 0;
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" style={{ position: "relative" }}>
       <header style={{ marginBottom: "30px" }}>
         <h2 style={{ color: "#111c43", margin: 0 }}>Ringkasan Keuangan</h2>
-        <p style={{ color: "#a3aed1" }}>
+        <p style={{ color: "#a3aed1", marginTop: "5px" }}>
           Kelola pengeluaran harian dengan cerdas.
         </p>
       </header>
 
-      {/* Grid Statistik Atas */}
-      <div className="stats-grid">
-        <div className="total-card">
-          <h3>Total Pengeluaran</h3>
-          <h1>Rp {totalExpense.toLocaleString("id-ID")}</h1>
+      {/* --- GRID STATISTIK ATAS (SUDAH DISERAGAMKAN) --- */}
+      <div className="stats-grid" style={{ alignItems: "stretch" }}>
+        {/* Card Biru */}
+        <div
+          className="total-card"
+          style={{
+            marginBottom: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: "25px",
+          }}
+        >
+          <h3
+            style={{
+              fontSize: "0.95rem",
+              margin: 0,
+              opacity: 0.9,
+              fontWeight: 500,
+            }}
+          >
+            Total Pengeluaran
+          </h3>
+          <h1 style={{ fontSize: "2.2rem", margin: "10px 0 0 0" }}>
+            Rp {totalExpense.toLocaleString("id-ID")}
+          </h1>
         </div>
+
+        {/* Card Putih 1 */}
         <div
           className="form-card"
-          style={{ borderLeft: "5px solid #4cc9f0", marginBottom: 0 }}
+          style={{
+            borderLeft: "5px solid #4cc9f0",
+            marginBottom: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: "25px",
+          }}
         >
-          <h3 style={{ fontSize: "0.85rem", color: "#a3aed1" }}>
+          <h3
+            style={{
+              fontSize: "0.95rem",
+              color: "#a3aed1",
+              margin: 0,
+              fontWeight: 600,
+            }}
+          >
             Rata-rata Transaksi
           </h3>
-          <h2 style={{ color: "#2b3674" }}>
+          <h1
+            style={{
+              color: "#2b3674",
+              fontSize: "2.2rem",
+              margin: "10px 0 0 0",
+            }}
+          >
             Rp{" "}
             {avgExpense.toLocaleString("id-ID", { maximumFractionDigits: 0 })}
-          </h2>
+          </h1>
         </div>
+
+        {/* Card Putih 2 */}
         <div
           className="form-card"
-          style={{ borderLeft: "5px solid #f72585", marginBottom: 0 }}
+          style={{
+            borderLeft: "5px solid #f72585",
+            marginBottom: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: "25px",
+          }}
         >
-          <h3 style={{ fontSize: "0.85rem", color: "#a3aed1" }}>
+          <h3
+            style={{
+              fontSize: "0.95rem",
+              color: "#a3aed1",
+              margin: 0,
+              fontWeight: 600,
+            }}
+          >
             Transaksi Terbesar
           </h3>
-          <h2 style={{ color: "#2b3674" }}>
+          <h1
+            style={{
+              color: "#2b3674",
+              fontSize: "2.2rem",
+              margin: "10px 0 0 0",
+            }}
+          >
             Rp {maxExpense.toLocaleString("id-ID")}
-          </h2>
+          </h1>
         </div>
       </div>
 
-      {/* Grid Utama: Chart, AI, & Form */}
-      <div className="main-grid">
+      {/* --- GRID UTAMA (CHART & FORM) --- */}
+      <div className="main-grid" style={{ alignItems: "stretch" }}>
+        {/* Kolom Kiri: Chart */}
         <div className="left-column">
-          <ExpenseChart expenses={expenses} />
-
-          {/* AI Financial Tips */}
           <div
             className="form-card"
-            style={{ background: "#f0f3ff", border: "1px dashed #4361ee" }}
+            style={{
+              height: "100%",
+              margin: 0,
+              display: "flex",
+              flexDirection: "column",
+              padding: "25px",
+            }}
           >
+            <h3
+              style={{
+                margin: "0 0 20px 0",
+                color: "#111c43",
+                textAlign: "center",
+              }}
+            >
+              📊 Statistik Pengeluaran
+            </h3>
             <div
               style={{
+                flexGrow: 1,
                 display: "flex",
-                justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "15px",
+                justifyContent: "center",
               }}
             >
-              <h3
-                style={{
-                  color: "#4361ee",
-                  margin: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                ✨ AI Advisor
-              </h3>
-
-              <button
-                onClick={fetchAiTip}
-                disabled={isLoadingAi}
-                style={{
-                  background: isLoadingAi ? "#a3aed1" : "#4361ee",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 12px",
-                  borderRadius: "8px",
-                  cursor: isLoadingAi ? "not-allowed" : "pointer",
-                  fontSize: "0.8rem",
-                  fontWeight: "bold",
-                  boxShadow: "0 2px 5px rgba(67, 97, 238, 0.2)",
-                }}
-              >
-                {isLoadingAi ? "Mikir..." : "Analisis Sekarang"}
-              </button>
+              {expenses.length > 0 ? (
+                <div style={{ width: "100%" }}>
+                  <ExpenseChart expenses={expenses} />
+                </div>
+              ) : (
+                <p style={{ color: "#888", fontStyle: "italic" }}>
+                  Belum ada data untuk ditampilkan.
+                </p>
+              )}
             </div>
-
-            <p
-              style={{
-                fontSize: "0.95rem",
-                color: "#2b3674",
-                lineHeight: "1.6",
-                margin: 0,
-                fontStyle: aiTip ? "normal" : "italic",
-              }}
-            >
-              {aiTip ||
-                "Klik tombol 'Analisis Sekarang' untuk mendapatkan *insight* langsung dari AI berdasarkan riwayat pengeluaranmu."}
-            </p>
           </div>
         </div>
 
+        {/* Kolom Kanan: Form Input */}
         <div className="right-column">
-          <div className="form-card">
-            <h3 style={{ marginBottom: "20px", color: "#111c43" }}>
+          <div
+            className="form-card"
+            style={{ height: "100%", margin: 0, padding: "25px" }}
+          >
+            <h3
+              style={{
+                margin: "0 0 20px 0",
+                color: "#111c43",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
               {editId ? "✏️ Edit Data" : "➕ Input Data"}
             </h3>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
+            <form
+              onSubmit={handleSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "15px" }}
+            >
+              <div className="form-group" style={{ margin: 0 }}>
                 <input
                   type="text"
                   name="title"
@@ -301,7 +348,7 @@ const Home = () => {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ margin: 0 }}>
                 <input
                   type="number"
                   name="amount"
@@ -311,7 +358,7 @@ const Home = () => {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ margin: 0 }}>
                 <select
                   name="category"
                   value={formData.category}
@@ -326,7 +373,7 @@ const Home = () => {
                   <option value="Lainnya">Lainnya</option>
                 </select>
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ margin: 0 }}>
                 <input
                   type="date"
                   name="date"
@@ -336,8 +383,7 @@ const Home = () => {
                 />
               </div>
 
-              {/* PERBAIKAN: Tombol Batal muncul saat mode edit */}
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
                 <button
                   type="submit"
                   className="btn-save"
@@ -353,10 +399,7 @@ const Home = () => {
                     type="button"
                     onClick={cancelEdit}
                     className="btn-save"
-                    style={{
-                      flex: 0.5,
-                      background: "#8d99ae",
-                    }}
+                    style={{ flex: 0.5, background: "#8d99ae" }}
                   >
                     Batal
                   </button>
@@ -367,24 +410,60 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Riwayat Transaksi */}
+      {/* --- RIWAYAT TRANSAKSI --- */}
       <div className="transaction-list" style={{ marginTop: "30px" }}>
-        <h3 style={{ color: "#111c43", marginBottom: "15px" }}>
+        <h3 style={{ color: "#111c43", marginBottom: "20px" }}>
           Aktivitas Terbaru
         </h3>
         {expenses.map((item) => (
-          <div key={item.id} className="transaction-item">
+          <div
+            key={item.id}
+            className="transaction-item"
+            style={{ padding: "15px 20px" }}
+          >
+            {/* Kiri: Info Transaksi */}
             <div className="t-info">
-              <h4>{item.title}</h4>
-              <span className="t-category">
+              <h4
+                style={{
+                  margin: "0 0 5px 0",
+                  fontSize: "1.05rem",
+                  color: "#2b3674",
+                }}
+              >
+                {item.title}
+              </h4>
+              <span
+                className="t-category"
+                style={{ fontSize: "0.85rem", color: "#a3aed1" }}
+              >
                 {item.category} • {item.date.split("T")[0]}
               </span>
             </div>
-            <div className="t-amount-action">
-              <span className="t-price">
+
+            {/* Kanan: Harga & Tombol Aksi */}
+            <div
+              className="t-amount-action"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                gap: "8px",
+              }}
+            >
+              <span
+                className="t-price"
+                style={{
+                  margin: 0,
+                  fontSize: "1.1rem",
+                  fontWeight: "700",
+                  color: "#ef233c",
+                }}
+              >
                 - Rp {Number(item.amount).toLocaleString("id-ID")}
               </span>
-              <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
+              <div
+                style={{ display: "flex", gap: "12px", alignItems: "center" }}
+              >
                 <button
                   onClick={() => handleEditClick(item)}
                   style={{
@@ -392,7 +471,9 @@ const Home = () => {
                     border: "none",
                     color: "#fca311",
                     cursor: "pointer",
-                    fontWeight: "bold",
+                    fontWeight: "600",
+                    fontSize: "0.85rem",
+                    padding: 0,
                   }}
                 >
                   Edit
@@ -400,6 +481,11 @@ const Home = () => {
                 <button
                   onClick={() => handleDelete(item.id)}
                   className="btn-delete"
+                  style={{
+                    padding: "5px 12px",
+                    fontSize: "0.8rem",
+                    borderRadius: "6px",
+                  }}
                 >
                   Hapus
                 </button>
@@ -408,6 +494,235 @@ const Home = () => {
           </div>
         ))}
       </div>
+
+      {/* ==================================================== */}
+      {/* FLOATING AI CHAT WIDGET (TIDAK ADA YANG DIUBAH) */}
+      {/* ==================================================== */}
+      {isChatOpen && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "90px",
+            right: "30px",
+            width: "350px",
+            height: "500px",
+            background: "white",
+            borderRadius: "15px",
+            boxShadow: "0 10px 30px rgba(17,28,67,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            zIndex: 1000,
+            overflow: "hidden",
+            border: "1px solid #e0e5f2",
+          }}
+        >
+          <div
+            style={{
+              background: "#4361ee",
+              padding: "15px",
+              color: "white",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <h4
+              style={{
+                margin: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              ✨ AI Advisor
+            </h4>
+            <button
+              onClick={() => setIsChatOpen(false)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "white",
+                cursor: "pointer",
+                fontSize: "1.2rem",
+                fontWeight: "bold",
+              }}
+            >
+              ✖
+            </button>
+          </div>
+          <div
+            style={{
+              padding: "10px",
+              display: "flex",
+              gap: "10px",
+              overflowX: "auto",
+              background: "#f8f9fa",
+              borderBottom: "1px solid #e0e5f2",
+            }}
+          >
+            <button
+              onClick={() =>
+                sendMessageToAi(
+                  "Tolong analisis total pengeluaran saya bulan ini dan beri masukan.",
+                )
+              }
+              style={{
+                padding: "6px 12px",
+                fontSize: "0.75rem",
+                borderRadius: "20px",
+                border: "1px solid #4361ee",
+                background: "white",
+                color: "#4361ee",
+                whiteSpace: "nowrap",
+                cursor: "pointer",
+              }}
+            >
+              📊 Analisis Pengeluaran
+            </button>
+            <button
+              onClick={() =>
+                sendMessageToAi(
+                  "Di kategori mana saya paling boros? Kasih tips hemat dong.",
+                )
+              }
+              style={{
+                padding: "6px 12px",
+                fontSize: "0.75rem",
+                borderRadius: "20px",
+                border: "1px solid #f72585",
+                background: "white",
+                color: "#f72585",
+                whiteSpace: "nowrap",
+                cursor: "pointer",
+              }}
+            >
+              💸 Cek Keborosan
+            </button>
+          </div>
+          <div
+            style={{
+              flex: 1,
+              padding: "15px",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: "15px",
+              background: "#f4f7fe",
+            }}
+          >
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                style={{
+                  alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
+                  maxWidth: "85%",
+                }}
+              >
+                <div
+                  style={{
+                    background: msg.sender === "user" ? "#4361ee" : "white",
+                    color: msg.sender === "user" ? "white" : "#2b3674",
+                    padding: "10px 15px",
+                    borderRadius: "15px",
+                    borderBottomRightRadius: msg.sender === "user" ? 0 : "15px",
+                    borderBottomLeftRadius: msg.sender === "ai" ? 0 : "15px",
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+                    fontSize: "0.9rem",
+                    lineHeight: "1.5",
+                  }}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {isLoadingAi && (
+              <div
+                style={{
+                  alignSelf: "flex-start",
+                  background: "white",
+                  padding: "10px 15px",
+                  borderRadius: "15px",
+                  borderBottomLeftRadius: 0,
+                  fontSize: "0.9rem",
+                  color: "#8d99ae",
+                }}
+              >
+                AI sedang mengetik...
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendMessageToAi(chatInput);
+            }}
+            style={{
+              padding: "10px",
+              background: "white",
+              borderTop: "1px solid #e0e5f2",
+              display: "flex",
+              gap: "10px",
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Tanya sesuatu..."
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              style={{
+                flex: 1,
+                padding: "10px",
+                borderRadius: "20px",
+                border: "1px solid #e0e5f2",
+                outline: "none",
+                fontSize: "0.9rem",
+              }}
+            />
+            <button
+              type="submit"
+              disabled={isLoadingAi || !chatInput.trim()}
+              style={{
+                background: "#4361ee",
+                color: "white",
+                border: "none",
+                padding: "0 15px",
+                borderRadius: "20px",
+                cursor: isLoadingAi ? "not-allowed" : "pointer",
+              }}
+            >
+              Kirim
+            </button>
+          </form>
+        </div>
+      )}
+
+      <button
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        style={{
+          position: "fixed",
+          bottom: "30px",
+          right: "30px",
+          width: "60px",
+          height: "60px",
+          background: "linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)",
+          color: "white",
+          borderRadius: "50%",
+          border: "none",
+          boxShadow: "0 5px 20px rgba(67,97,238,0.4)",
+          fontSize: "1.8rem",
+          cursor: "pointer",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+          transition: "transform 0.3s",
+        }}
+        onMouseEnter={(e) => (e.target.style.transform = "scale(1.1)")}
+        onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+      >
+        {isChatOpen ? "✖" : "✨"}
+      </button>
     </div>
   );
 };
